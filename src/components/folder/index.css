@@ -1,0 +1,9 @@
+.folder {
+    background-image: url("https://user-images.githubusercontent.com/10094591/29320131-3b52ebd2-8211-11e7-880b-7014a2f95f33.jpg");
+    height: 45vw;
+    padding: 10px;
+}
+
+.folder-title {
+    color: grey;
+}

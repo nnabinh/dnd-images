@@ -1,5 +1,12 @@
+#wrapper {
+    background-image: url("https://user-images.githubusercontent.com/10094591/29319962-c3c3433c-8210-11e7-8baa-4fbb4ff819f4.jpg");
+}
+
 .title {
     text-align: center;
     font-size: 30px;
-    margin: 20px;
+    padding: 20px;
+    color: sandybrown;
+    font-family: cursive;
+    margin: 0px 20px 10px 20px;
 }
