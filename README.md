@@ -1,11 +1,6 @@
 ## Screenshot
 ![alt text]()
 
-
-## ---------------
-This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
->>>>>>> 6cdbfd48864d2eabfe6fb6d8b4d8b66065fe80ac
-
 ## Folder Structure
 
 After creation, your project should look like this:
