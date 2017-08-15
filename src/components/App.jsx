@@ -13,10 +13,10 @@ class App extends Component {
 		</div>
 		<Col sm={6} md={1}/>
 		<Col sm={6} md={5}>
-		    <Folder name="FOLDER 1"/>
+		    <Folder id="folder1"/>
 		</Col>
 		<Col sm={6} md={5}>
-		    <Folder name="FOLDER 2"/>
+		    <Folder id="folder2"/>
 		</Col>
 		<Col sm={6} md={1}/>
 	    </div>
