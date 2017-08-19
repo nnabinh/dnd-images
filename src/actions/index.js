@@ -7,7 +7,7 @@ export const loadALlParisImages = (folder) => {
     };
 }
 
-export const setImageDimensions = (folder, imageId, dimensions, images) => {
+export const setImageDimensions = (folder, imageId, dimensions, images, isSelected) => {
     return {
 	type: SET_IMAGE_DIMENSIONS,
 	folder,

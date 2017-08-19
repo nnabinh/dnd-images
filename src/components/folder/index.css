@@ -8,3 +8,14 @@
 .folder-title {
     color: grey;
 }
+
+.folder-col {
+    margin: 0px;
+    padding: 0px;
+    padding-right: 10px;
+}
+
+.folder-col img {
+    width: 100%;
+    padding-bottom: 10px;
+}

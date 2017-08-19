@@ -11,14 +11,14 @@ class App extends Component {
 		<div className="title">
 		    Welcome to DnD Images
 		</div>
-		<Col sm={6} md={1}/>
-		<Col sm={6} md={5}>
+		<Col md={1}/>
+		<Col md={5}>
 		    <Folder id="folder1"/>
 		</Col>
-		<Col sm={6} md={5}>
+		<Col md={5}>
 		    <Folder id="folder2"/>
 		</Col>
-		<Col sm={6} md={1}/>
+		<Col md={1}/>
 	    </div>
 	);
     }

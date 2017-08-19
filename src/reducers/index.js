@@ -16,7 +16,10 @@ const images = (state = [], action) => {
 	}
     case SET_IMAGE_DIMENSIONS:
 	const { imageId, dimensions, images } = action;
-	console.log(images);
+	const image = images.find(img => img.id === imageId);
+	if (image)  {
+	    image.dimensions = dimensions;
+	}
 	return state;
     default:
 	return state;
