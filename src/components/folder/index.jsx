@@ -10,7 +10,7 @@ import './index.css';
 class Folder extends Component {
     dimensions = [];
     nCols = 3;
-    isDimensionsSet = false;
+    isDimensionsSet= false;
     isArranged = false;
 
     constructor(props) {
@@ -23,7 +23,7 @@ class Folder extends Component {
 
     onImgLoad(image) {
 	const { id, folder } = this.props;
-	const nImages = folder[id].length;
+	const nImages = _.last(folder)[id].length;
 	const img = new Image();
 	img.src = image.src;
 	img.onload = () => {
@@ -38,7 +38,7 @@ class Folder extends Component {
 		this.isDimensionsSet = true;
 		this.props.setImageDimensions(
 		    id,
-		    folder[id],
+		    _.last(folder)[id],
 		    this.dimensions
 		);
 	    }
@@ -47,8 +47,9 @@ class Folder extends Component {
 
     renderImages(colIndex) {
 	const { id, folder } = this.props;
-	if (folder[id]) {
-	    return folder[id].map((image, index) => {
+	const imgContainer = _.last(folder);
+	if (imgContainer && imgContainer[id]) {
+	    return _.last(folder)[id].map((image, index) => {
 		if (index % this.nCols === colIndex) {
 		    this.onImgLoad(image);
 		    return (
@@ -79,9 +80,9 @@ class Folder extends Component {
 
     componentDidUpdate() {
 	const { id, folder } = this.props;
-	if (folder[id]) {
+	if (this.isDimensionsSet && !this.isArranged && _.last(folder)[id]) {
 	    this.isArranged = true;
-	    this.props.arrangeImages(id, this.nCols, folder[id]);
+	    this.props.arrangeImages(id, this.nCols, _.last(folder)[id]);
 	}
     }
 
