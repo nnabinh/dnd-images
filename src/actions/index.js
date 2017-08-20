@@ -7,19 +7,19 @@ export const loadALlParisImages = (folder) => {
     };
 }
 
-export const setImageDimensions = (folder, imageId, dimensions, images) => {
+export const setImageDimensions = (folder, images, dimensions) => {
     return {
 	type: SET_IMAGE_DIMENSIONS,
 	folder,
-	imageId,
-	dimensions,
-	images
+	images,
+	dimensions
     }
 }
 
-export const arrangeImages = (nCols, images) => {
+export const arrangeImages = (folder, nCols, images) => {
     return {
 	type: ARRANGE_IMAGES,
+	folder,
 	nCols,
 	images
     }
