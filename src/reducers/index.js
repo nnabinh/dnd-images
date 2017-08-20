@@ -2,97 +2,115 @@ import * as _ from 'lodash';
 
 import { LOAD_ALL_PARIS_IMAGES, SET_IMAGE_DIMENSIONS, ARRANGE_IMAGES, MOVE_IMAGE } from '../constants';
 
+const assignImgsToCols = (nCols, imgs) => {
+    const cols = [...Array(nCols).keys()].map(() => []);
+    cols.forEach((col, colIndex) => {
+	imgs.forEach((img, imgIndex) => {
+	    if (imgIndex % nCols === colIndex) {
+		col.push(img);
+	    }
+	});
+    });
+    return cols;
+}
+
 // Load 17 paris images to test
-const loadAllParisImage = () => [...Array(17).keys()].map(i => {
-    return {
-	id: Math.random(),
-	src: require(`../img/paris/paris${i}.jpeg`),
-    }
-});
+const loadAllParisImage = (nCols) => {
+    const imgs = [...Array(17).keys()].map(i => {
+	return {
+	    id: Math.random(),
+	    src: require(`../img/paris/paris${i}.jpeg`)
+	}
+    });
+    return assignImgsToCols(nCols, imgs);
+};
 
 // Set dimensions
-const setImageDimensions = (dimensions, images) => {
+const setImageDimensions = (dimensions, cols) => {
     const newImgs = [];
+    const imgs = _.flatten(cols);
     dimensions.forEach(dimension => {
-	const image = images.find(img => img.id === dimension.imageId);
-	if (image) {
-	    newImgs.push(_.assign({}, image, {
+	const img = imgs.find(img => img.id === dimension.imageId);
+	if (img) {
+	    newImgs.push(_.assign({}, img, {
 		width: dimension.width,
 		height: dimension.height
 	    }));
 	}
     });
-    return newImgs;
+    return assignImgsToCols(cols.length, newImgs);
 }
 
 // Arrange images into nCols with min difference
-const arrangeImages = (nCols, images) => {
-    const cols = [...Array(nCols).keys()].map(() => []);
-    images = _.orderBy(images, image => image.height, 'desc');
+const arrangeImages = (cols) => {
+    const newCols = [...Array(cols.length).keys()].map(() => []);
+    const images = _.orderBy(_.flatten(cols), image => image.height, 'desc');
     // Arrange
     for (const image of images) {
-	let minCol = cols[0];
-	for (const col of cols) {
+	let minCol = newCols[0];
+	for (const col of newCols) {
 	    if (_.sumBy(col, img => img.height) < _.sumBy(minCol, img => img.height)) {
 		minCol = col;
 	    }
 	}
 	minCol.push(image);
     };
-    console.log('Cols in arrange', cols);
     // Randomize
-    cols.forEach(col => col.sort((a, b) => a.id > b.id ? 1 : -1));
+    newCols.forEach(col => col.sort((a, b) => a.id > b.id ? 1 : -1));
     // Merge after positioning
-    const mergesResult = [...Array(images.length).keys()].map(() => { return {}; });
-    cols.forEach((col, colI) => col.forEach((img, imgI) => {
-	mergesResult[colI + imgI*nCols] = img;
-    }));
-    return mergesResult;
+    return newCols;
 };
 
 // Move image
-const moveImage = (state, fromFolder, toFolder, imageId) => {
-    const preStateFromFolder = _.last(state)[fromFolder];
-    const preStateToFolder = _.last(state)[toFolder];
+const moveImage = (state, fromFolder, toFolder, imageId, nCols) => {
+    const preStateFromFolder = _.flatten(_.last(state)[fromFolder]);
+    const preStateToFolder = _.flatten(_.last(state)[toFolder]);
     const image = preStateFromFolder.find(img => img.id.toString() === imageId);
     return {
-	[fromFolder]: _.filter(preStateFromFolder, img => img.id.toString() !== imageId),
-	[toFolder]: _.concat(preStateToFolder || [], image)
+	[fromFolder]: assignImgsToCols(
+	    nCols,
+	    _.filter(preStateFromFolder, img => img.id.toString() !== imageId)
+	),
+	[toFolder]: assignImgsToCols(
+	    nCols,
+	    _.concat(preStateToFolder || [], image)
+	)
     };
 }
 
 
 // Reducer handling
 const images = (state = [], action) => {
-    const { folder, type, images } = action;
+    const { folder, type, cols, nCols } = action;
     switch (type) {
     case LOAD_ALL_PARIS_IMAGES:
 	console.log('Load image');
-	console.log([...state, _.assign(_.last(state), {
-	    [folder]: loadAllParisImage()
-	})]);
 	return [...state, _.assign({}, _.last(state), {
-	    [folder]: loadAllParisImage()
+	    [folder]: loadAllParisImage(nCols)
 	})];
     case SET_IMAGE_DIMENSIONS:
-	const { dimensions } = action;
 	console.log('Set image dimensions');
+	const { dimensions } = action;
 	return [...state, _.assign({}, _.last(state), {
-	    [folder]: setImageDimensions(dimensions, images) 
+	    [folder]: setImageDimensions(dimensions, cols) 
 	})];
     case ARRANGE_IMAGES:
 	console.log('Arrange images');
-	const { nCols } = action;
-	return [...state, _.assign({}, _.last(state), {
-	    [folder]: arrangeImages(nCols, images)
+	const preState = _.last(state);
+	const isArranged = _.assign({}, preState.isArranged, {
+	    [folder]: true
+	})
+	return [...state, _.assign({}, preState, {
+	    [folder]: arrangeImages(cols),
+	    isArranged
 	})];
     case MOVE_IMAGE:
-	const { fromFolder, toFolder, imageId } = action;
 	console.log('Move image');
+	const { fromFolder, toFolder, imageId } = action;
 	if (fromFolder === toFolder) {
 	    return state;
 	}
-	return [...state, moveImage(state, fromFolder, toFolder, imageId)];
+	return [...state, moveImage(state, fromFolder, toFolder, imageId, nCols)];
     default:
 	console.log('Default state');
 	return state;
