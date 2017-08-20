@@ -1,8 +1,9 @@
+import * as _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Col } from 'react-bootstrap';
 
-import { loadALlParisImages, setImageDimensions } from '../../actions';
+import { loadALlParisImages, setImageDimensions, arrangeImages } from '../../actions';
 import { folderName } from '../../constants';
 import './index.css';
 
@@ -15,30 +16,30 @@ class Folder extends Component {
 	}
 
 	this.state = {
-	    nCols: 3
+	    nCols: 3,
+	    isArranged: false,
+	    dimensions: []
 	};
     }
 
     onImgLoad(image) {
-	const { id, folder } = this.props;
-	const img = new Image();
-	img.src = image.src;
-	img.onload = () => {
-	    this.props.setImageDimensions(
-		id,
-		image.id,
-		{
-		    height: img.height,
-		    width: img.width
-		},
-		folder[id]
-	    );
+	console.log('image loading');
+	if (!image.isLoaded) {
+	    const { id, folder } = this.props;
+	    const img = new Image();
+	    img.src = image.src;
+	    img.onload = () => {
+		this.props.setImageDimensions(
+		    id,
+		    image.id,
+		    {
+			height: img.height,
+			width: img.width
+		    },
+		    folder[id]
+		);
+	    }
 	}
-    }
-
-    componentDidMount() {
-	const height = document.getElementById(this.props.id).clientHeight;
-	console.log(height);
     }
 
     renderImages(colIndex) {
@@ -60,15 +61,39 @@ class Folder extends Component {
     renderColumn() {
 	return (
 	    [...Array(this.state.nCols).keys()].map((colIndex) => (
-		<Col md={4} className="folder-col">
+		<Col md={12/this.state.nCols} key={Math.random()} className="folder-col">
 		    {this.renderImages(colIndex)}
 		</Col>
 	    ))
 	);
     }
 
+    /* componentDidUpdate() {
+       const { id, folder } = this.props;
+       const { dimensions } = folder[id][0];
+       if (!this.state.isArranged && folder[id].dimensions) {
+       console.log(dimensions);
+       const { id, folder } = this.props;
+       this.setState({ isArranged: true });
+       this.props.arrangeImages(this.state.nCols, folder[id]);
+       }
+     * }*/
+    /* componentDidUpdate() {
+       const { id, folder } = this.props;
+       if (folder[id]) {
+       const isLoadeds = _.uniq(folder[id].map(img => img.isLoaded));
+       if (isLoadeds.length === 1 && isLoadeds[0] === true) {
+       console.log('Last');
+       }
+       }
+     * }*/
+
     render() {
 	console.log(this.props);
+	const { id, folder } = this.props;
+	if (folder[id]) {
+	    console.log(folder[id][0]);
+	}
 	return (
 	    <div className="folder">
 		<div className="folder-title" id={this.props.id}>
@@ -86,4 +111,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, {loadALlParisImages, setImageDimensions})(Folder);
+export default connect(mapStateToProps, {loadALlParisImages, setImageDimensions, arrangeImages})(Folder);

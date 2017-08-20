@@ -5,3 +5,4 @@ export const folderName = {
 
 export const LOAD_ALL_PARIS_IMAGES = "LOAD_ALL_PARIS_IMAGES";
 export const SET_IMAGE_DIMENSIONS = "SET_IMAGE_DIMENSIONS";
+export const ARRANGE_IMAGES = "ARRANGE_IMAGES";
