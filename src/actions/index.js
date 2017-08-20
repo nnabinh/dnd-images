@@ -1,4 +1,4 @@
-import { LOAD_ALL_PARIS_IMAGES, SET_IMAGE_DIMENSIONS, ARRANGE_IMAGES } from '../constants';
+import { LOAD_ALL_PARIS_IMAGES, SET_IMAGE_DIMENSIONS, ARRANGE_IMAGES, MOVE_IMAGE } from '../constants';
 
 export const loadALlParisImages = (folder) => {
     return {
@@ -22,5 +22,14 @@ export const arrangeImages = (folder, nCols, images) => {
 	folder,
 	nCols,
 	images
+    }
+}
+
+export const moveImage = (fromFolder, toFolder, imageId) => {
+    return {
+	type: MOVE_IMAGE,
+	fromFolder,
+	toFolder,
+	imageId
     }
 }

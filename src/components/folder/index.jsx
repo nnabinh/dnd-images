@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Col } from 'react-bootstrap';
 
-import { loadALlParisImages, setImageDimensions, arrangeImages } from '../../actions';
+import { loadALlParisImages, setImageDimensions, arrangeImages, moveImage } from '../../actions';
 import { folderName } from '../../constants';
 import './index.css';
 
@@ -52,7 +52,14 @@ class Folder extends Component {
 		if (index % this.nCols === colIndex) {
 		    this.onImgLoad(image);
 		    return (
-			<img alt="" key={image.id} id={image.id} src={image.src}/>
+			<img
+			    alt=""
+			    key={image.id}
+			    id={image.id}
+			    src={image.src}
+			    draggable="true"
+			    onDragStart={this.startDragImage}
+			    onDrop={event => this.dropOnImage(event)}/>
 		    );
 		}
 		return '';
@@ -72,16 +79,46 @@ class Folder extends Component {
 
     componentDidUpdate() {
 	const { id, folder } = this.props;
-	if (this.isDimensionsSet && !this.isArranged && folder[id]) {
+	if (folder[id]) {
 	    this.isArranged = true;
 	    this.props.arrangeImages(id, this.nCols, folder[id]);
 	}
     }
 
+    startDragImage(event) {
+	const movingImgId = event.target.id;
+	const fromFolderId = event.target.parentNode.parentNode.firstChild.id;
+	const data = { movingImgId, fromFolderId };
+	event.dataTransfer.setData('text', JSON.stringify(data));
+    }
+
+    dropOnFolder(event) {
+	event.preventDefault();
+	if (event.target.firstChild) {
+	    const toFolderId = event.target.firstChild.id;
+	    const data = JSON.parse(event.dataTransfer.getData('text'));
+	    this.props.moveImage(data.fromFolderId, toFolderId, data.movingImgId);
+	}
+    }
+
+    dropOnImage(event) {
+	event.preventDefault();
+	const toFolderId = event.target.parentNode.parentNode.firstChild.id;
+	const data = JSON.parse(event.dataTransfer.getData('text'));
+	this.props.moveImage(data.fromFolderId, toFolderId, data.movingImgId);
+    }
+
+    preventDefault(event) {
+	event.preventDefault();
+    }
+
     render() {
 	console.log(this.props);
 	return (
-	    <div className="folder">
+	    <div
+		className="folder"
+		onDragOver={this.preventDefault}
+		onDrop={event => this.dropOnFolder(event)}>
 		<div className="folder-title" id={this.props.id}>
 		    {folderName[this.props.id]}
 		</div>
@@ -97,4 +134,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, {loadALlParisImages, setImageDimensions, arrangeImages})(Folder);
+export default connect(mapStateToProps, {loadALlParisImages, setImageDimensions, arrangeImages, moveImage})(Folder);
