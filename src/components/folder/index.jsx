@@ -3,7 +3,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Col } from 'react-bootstrap';
 
-import { loadALlParisImages, setImageDimensions, arrangeImages, moveImage } from '../../actions';
+import {
+    loadALlParisImages,
+    setImageDimensions,
+    arrangeImages,
+    moveImageToCol,
+    moveImageAfterImage
+} from '../../actions';
 import { folderName } from '../../constants';
 import './index.css';
 
@@ -126,13 +132,18 @@ class Folder extends Component {
 	});
 
 	console.log('target col index: ', toColIndex);
-	const titleEle =
-	    event.target.parentNode.firstChild.className === 'folder-title' ?
-	    event.target.parentNode.firstChild :
-	    event.target.parentNode.parentNode.firstChild;
-	const toFolderId = titleEle.id;
-	const data = JSON.parse(event.dataTransfer.getData('text'));
-	this.props.moveImage(data.fromFolderId, toFolderId, toColIndex, data.movingImgId, this.nCols);
+	if (event.target.parentNode.firstChild.className === 'folder-title') {
+	    const titleEle = event.target.parentNode.firstChild
+	    const toFolderId = titleEle.id;
+	    const data = JSON.parse(event.dataTransfer.getData('text'));
+	    this.props.moveImageToCol(data.fromFolderId, toFolderId, toColIndex, data.movingImgId, this.nCols);
+	} else {
+	    const afterImgId = event.target.id;
+	    const titleEle = event.target.parentNode.parentNode.firstChild
+	    const toFolderId = titleEle.id;
+	    const data = JSON.parse(event.dataTransfer.getData('text'));
+	    this.props.moveImageAfterImage(data.fromFolderId, toFolderId, afterImgId, data.movingImgId, this.nCols);
+	}
     }
 
     preventDefault(event) {
@@ -161,4 +172,10 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, {loadALlParisImages, setImageDimensions, arrangeImages, moveImage})(Folder);
+export default connect(mapStateToProps, {
+    loadALlParisImages,
+    setImageDimensions,
+    arrangeImages,
+    moveImageToCol,
+    moveImageAfterImage
+})(Folder);

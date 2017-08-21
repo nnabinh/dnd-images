@@ -6,4 +6,5 @@ export const folderName = {
 export const LOAD_ALL_PARIS_IMAGES = "LOAD_ALL_PARIS_IMAGES";
 export const SET_IMAGE_DIMENSIONS = "SET_IMAGE_DIMENSIONS";
 export const ARRANGE_IMAGES = "ARRANGE_IMAGES";
-export const MOVE_IMAGE = "MOVE_IMAGE";
+export const MOVE_IMAGE_TO_COL = "MOVE_IMAGE_TO_COL";
+export const MOVE_IMAGE_AFTER_IMAGE = "MOVE_IMAGE_AFTER_IMAGE";

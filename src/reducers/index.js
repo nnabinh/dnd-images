@@ -1,6 +1,12 @@
 import * as _ from 'lodash';
 
-import { LOAD_ALL_PARIS_IMAGES, SET_IMAGE_DIMENSIONS, ARRANGE_IMAGES, MOVE_IMAGE } from '../constants';
+import {
+    LOAD_ALL_PARIS_IMAGES,
+    SET_IMAGE_DIMENSIONS,
+    ARRANGE_IMAGES,
+    MOVE_IMAGE_TO_COL,
+    MOVE_IMAGE_AFTER_IMAGE
+} from '../constants';
 
 const assignImgsToCols = (nCols, imgs) => {
     const cols = [...Array(nCols).keys()].map(() => []);
@@ -62,14 +68,12 @@ const arrangeImages = (cols) => {
     return newCols;
 };
 
-// Move image
-const moveImage = (state, action) => {
+// Move image to col
+const moveImageToCol = (state, action) => {
     const { fromFolder, toFolder, toColIndex, imageId, nCols } = action;
     const newCols = [...Array(nCols).keys()].map(() => []);
 
     const fromFolderCols = _.last(state)[fromFolder] || newCols;
-    console.log(_.last(state));
-    console.log(fromFolderCols);
     const toFolderCols = _.last(state)[toFolder] || newCols;
     const image = _.flatten(fromFolderCols).find(img => img.id.toString() === imageId);
 
@@ -95,6 +99,48 @@ const moveImage = (state, action) => {
     }
 }
 
+// Move image after image
+const moveImageAfterImage = (state, action) => {
+    const { fromFolder, toFolder, afterImgId, imageId, nCols } = action;
+    if (imageId === afterImgId) {
+	return _.last(state);
+    }
+
+    const newCols = [...Array(nCols).keys()].map(() => []);
+    const fromFolderCols = _.last(state)[fromFolder] || newCols;
+    const toFolderCols = _.last(state)[toFolder] || newCols;
+    const image =
+	  _.flatten(fromFolderCols).find(img => img.id.toString() === imageId) ||
+	  _.flatten(toFolderCols).find(img => img.id.toString() === imageId);
+
+    const addImgToColAfterImgId = (newCol, image, afterImgId) => {
+	newCol.some((img, imgIndex) => {
+	    if (img.id.toString() === afterImgId) {
+		newCol.splice(imgIndex + 1, 0, image);
+		return true;
+	    }
+	    return false;
+	})
+    }
+    if (fromFolder !== toFolder) {
+	return {
+	    [fromFolder]: fromFolderCols.map(col => _.filter(col, img => img.id.toString() !== imageId)),
+	    [toFolder]: toFolderCols.map(col => {
+		const newCol = [...col];
+		addImgToColAfterImgId(newCol, image, afterImgId);
+		return newCol;
+	    })
+	}
+    } else {
+	return _.assign({}, _.last(state), {
+	    [fromFolder]: fromFolderCols.map((col, colIndex) => {
+		const newCol = col.filter(img => img.id.toString() !== imageId);
+		addImgToColAfterImgId(newCol, image, afterImgId);
+		return newCol;
+	    })
+	});
+    }
+}
 
 // Reducer handling
 const images = (state = [], action) => {
@@ -121,9 +167,12 @@ const images = (state = [], action) => {
 	    [folder]: arrangeImages(cols),
 	    isArranged
 	})];
-    case MOVE_IMAGE:
-	console.log('Move image');
-	return [...state, moveImage(state, action)];
+    case MOVE_IMAGE_TO_COL:
+	console.log('Move image to col');
+	return [...state, moveImageToCol(state, action)];
+    case MOVE_IMAGE_AFTER_IMAGE:
+	console.log('Move image after image');
+	return [...state, moveImageAfterImage(state, action)];
     default:
 	console.log('Default state');
 	return state;
