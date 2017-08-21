@@ -86,7 +86,8 @@ class Folder extends Component {
     componentDidUpdate() {
 	const { id, folder } = this.props;
 	if (_.last(folder)) {
-	    if (this.isDimensionsSet && !this.isArranged && _.last(folder)[id]) {
+	    // hard coded arrange only folder1 for test purpose
+	    if (this.isDimensionsSet && !this.isArranged && _.last(folder)[id] && id === 'folder1') {
 		this.isArranged = true;
 		this.props.arrangeImages(id, _.last(folder)[id]);
 	    }
@@ -110,12 +111,28 @@ class Folder extends Component {
 	console.log('Drop on x: ', event.clientX);
 	console.log('Drop on y: ', event.clientY);
 	console.log(event.target);
-	console.log(event.target.clientX);
-	console.log(event.target.clienty);
-	const titleEle = event.target.parentNode.firstChild;
+	console.log(event.target.offsetLeft);
+	console.log(event.target.offsetTop);
+	const { id } = this.props;
+	const colWidth = document.getElementById(id).offsetWidth / this.nCols;
+	let toColIndex = 0;
+	[...Array(this.nCols + 1).keys()].some(i => {
+	    if (event.target.offsetLeft - colWidth * i < 0) {
+		console.log(i);
+		toColIndex = i - 1;
+		return true;
+	    }
+	    return false;
+	});
+
+	console.log('target col index: ', toColIndex);
+	const titleEle =
+	    event.target.parentNode.firstChild.className === 'folder-title' ?
+	    event.target.parentNode.firstChild :
+	    event.target.parentNode.parentNode.firstChild;
 	const toFolderId = titleEle.id;
 	const data = JSON.parse(event.dataTransfer.getData('text'));
-	this.props.moveImage(data.fromFolderId, toFolderId, data.movingImgId, this.nCols);
+	this.props.moveImage(data.fromFolderId, toFolderId, toColIndex, data.movingImgId, this.nCols);
     }
 
     preventDefault(event) {

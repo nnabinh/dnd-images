@@ -63,17 +63,36 @@ const arrangeImages = (cols) => {
 };
 
 // Move image
-const moveImage = (state, fromFolder, toFolder, imageId, nCols) => {
-    const preStateFromFolder = _.flatten(_.last(state)[fromFolder]);
-    const preStateToFolder = _.flatten(_.last(state)[toFolder]);
-    const image = preStateFromFolder.find(img => img.id.toString() === imageId);
-    return {
-	[fromFolder]: _.last(state)[fromFolder].map(col => _.filter(col, img => img.id.toString() !== imageId)),
-	[toFolder]: assignImgsToCols(
-	    nCols,
-	    _.concat(preStateToFolder || [], image)
-	)
-    };
+const moveImage = (state, action) => {
+    const { fromFolder, toFolder, toColIndex, imageId, nCols } = action;
+    const newCols = [...Array(nCols).keys()].map(() => []);
+
+    const fromFolderCols = _.last(state)[fromFolder] || newCols;
+    console.log(_.last(state));
+    console.log(fromFolderCols);
+    const toFolderCols = _.last(state)[toFolder] || newCols;
+    const image = _.flatten(fromFolderCols).find(img => img.id.toString() === imageId);
+
+    if (fromFolder !== toFolder) {
+	// Moving img between dif folders
+	return {
+	    [fromFolder]: fromFolderCols.map(col => _.filter(col, img => img.id.toString() !== imageId)),
+	    [toFolder]: toFolderCols.map((col, colIndex) =>
+		colIndex === toColIndex ? [...col, image] : [...col]
+	    )
+	};
+    } else {
+	// Moving img in internal folder
+	return _.assign({}, _.last(state), {
+	    [fromFolder]: fromFolderCols.map((col, colIndex) => {
+		const newCol = col.filter(img => img.id.toString() !== imageId);
+		if (colIndex === toColIndex) {
+		    return [...newCol, image];
+		}
+		return newCol;
+	    })
+	});
+    }
 }
 
 
@@ -104,11 +123,7 @@ const images = (state = [], action) => {
 	})];
     case MOVE_IMAGE:
 	console.log('Move image');
-	const { fromFolder, toFolder, imageId } = action;
-	if (fromFolder === toFolder) {
-	    return state;
-	}
-	return [...state, moveImage(state, fromFolder, toFolder, imageId, nCols)];
+	return [...state, moveImage(state, action)];
     default:
 	console.log('Default state');
 	return state;

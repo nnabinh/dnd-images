@@ -25,11 +25,12 @@ export const arrangeImages = (folder, cols) => {
     }
 }
 
-export const moveImage = (fromFolder, toFolder, imageId, nCols) => {
+export const moveImage = (fromFolder, toFolder, toColIndex, imageId, nCols) => {
     return {
 	type: MOVE_IMAGE,
 	fromFolder,
 	toFolder,
+	toColIndex,
 	imageId,
 	nCols
     }
