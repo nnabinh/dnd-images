@@ -27,18 +27,19 @@ const loadAllParisImage = (nCols) => {
 
 // Set dimensions
 const setImageDimensions = (dimensions, cols) => {
-    const newImgs = [];
-    const imgs = _.flatten(cols);
-    dimensions.forEach(dimension => {
-	const img = imgs.find(img => img.id === dimension.imageId);
-	if (img) {
-	    newImgs.push(_.assign({}, img, {
-		width: dimension.width,
-		height: dimension.height
-	    }));
-	}
-    });
-    return assignImgsToCols(cols.length, newImgs);
+    const newCols = [...Array(cols.length).keys()].map(() => []);
+    cols.forEach((col, colIndex) => {
+	col.forEach(img => {
+	    const dimension = dimensions.find(dimension => img.id === dimension.imageId);
+	    if (dimension) {
+		newCols[colIndex].push(_.assign({}, img, {
+		    width: dimension.width,
+		    height: dimension.height
+		}));
+	    }
+	})
+    })
+    return newCols;
 }
 
 // Arrange images into nCols with min difference
@@ -67,10 +68,7 @@ const moveImage = (state, fromFolder, toFolder, imageId, nCols) => {
     const preStateToFolder = _.flatten(_.last(state)[toFolder]);
     const image = preStateFromFolder.find(img => img.id.toString() === imageId);
     return {
-	[fromFolder]: assignImgsToCols(
-	    nCols,
-	    _.filter(preStateFromFolder, img => img.id.toString() !== imageId)
-	),
+	[fromFolder]: _.last(state)[fromFolder].map(col => _.filter(col, img => img.id.toString() !== imageId)),
 	[toFolder]: assignImgsToCols(
 	    nCols,
 	    _.concat(preStateToFolder || [], image)

@@ -66,28 +66,35 @@ class Folder extends Component {
     renderColumn() {
 	const { id, folder } = this.props;
 	const curFolder = _.last(folder);
-	if (curFolder && curFolder[id]) {
-	    return (
-		curFolder[id].map(imgs => (
+	return (
+	    [...Array(this.nCols).keys()].map((col) => {
+		console.log('rendering col for folder', id);
+		return (
 		    <Col
 			md={12/this.nCols}
 			key={Math.random()}
 			className="folder-col"
-			onDrop={this.preventDefault}>
-			{this.renderImages(imgs)}
+			onDrop={event => this.dropOnFolder(event)}>
+			{curFolder && curFolder[id] ? this.renderImages(curFolder[id][col]) : ''}
 		    </Col>
-		))
-	    )
-	}
+		);
+	    })
+	)
     }
 
+    isArranged = false;
     componentDidUpdate() {
 	const { id, folder } = this.props;
 	if (_.last(folder)) {
-	    const { isArranged } = _.last(folder);
-	    if (this.isDimensionsSet && (!isArranged || !isArranged[id]) && _.last(folder)[id]) {
+	    if (this.isDimensionsSet && !this.isArranged && _.last(folder)[id]) {
+		this.isArranged = true;
 		this.props.arrangeImages(id, _.last(folder)[id]);
 	    }
+	    // Below code is for auto rearranging photos inside folder
+	    /* const { isArranged } = _.last(folder);
+	       if (this.isDimensionsSet && (!isArranged || !isArranged[id]) && _.last(folder)[id]) {
+	       this.props.arrangeImages(id, _.last(folder)[id]);
+	       }*/
 	}
     }
 
@@ -100,15 +107,15 @@ class Folder extends Component {
 
     dropOnFolder(event) {
 	event.preventDefault();
-	if (event.target.firstChild) {
-	    const titleEle =
-		event.target.firstChild.className === 'folder-title' ?
-		event.target.firstChild :
-		event.target.parentNode.firstChild;
-	    const toFolderId = titleEle.id;
-	    const data = JSON.parse(event.dataTransfer.getData('text'));
-	    this.props.moveImage(data.fromFolderId, toFolderId, data.movingImgId, this.nCols);
-	}
+	console.log('Drop on x: ', event.clientX);
+	console.log('Drop on y: ', event.clientY);
+	console.log(event.target);
+	console.log(event.target.clientX);
+	console.log(event.target.clienty);
+	const titleEle = event.target.parentNode.firstChild;
+	const toFolderId = titleEle.id;
+	const data = JSON.parse(event.dataTransfer.getData('text'));
+	this.props.moveImage(data.fromFolderId, toFolderId, data.movingImgId, this.nCols);
     }
 
     preventDefault(event) {
@@ -121,7 +128,7 @@ class Folder extends Component {
 	    <div
 		className="folder"
 		onDragOver={this.preventDefault}
-		onDrop={event => this.dropOnFolder(event)}>
+		onDrop={this.preventDefault}>
 		<div className="folder-title" id={this.props.id}>
 		    {folderName[this.props.id]}
 		</div>
