@@ -4,7 +4,7 @@ import {
     ARRANGE_IMAGES,
     MOVE_IMAGE_TO_COL,
     MOVE_IMAGE_AFTER_IMAGE
-} from '../constants';
+} from '../../constants';
 
 export const loadALlParisImages = (folder, nCols) => {
     return {

@@ -20,3 +20,16 @@
     width: 100%;
     padding-bottom: 10px;
 }
+
+.img-hover {
+    border: 2px dashed white;
+}
+
+img {
+    -webkit-transition: width 10s, height 10s;
+    transition: width 10s, height 10s;
+}
+
+.img-moving {
+    padding: 5px 10px 15px 10px;;
+}

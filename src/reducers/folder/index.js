@@ -6,7 +6,7 @@ import {
     ARRANGE_IMAGES,
     MOVE_IMAGE_TO_COL,
     MOVE_IMAGE_AFTER_IMAGE
-} from '../constants';
+} from '../../constants';
 
 const assignImgsToCols = (nCols, imgs) => {
     const cols = [...Array(nCols).keys()].map(() => []);
@@ -25,7 +25,7 @@ const loadAllParisImage = (nCols) => {
     const imgs = [...Array(17).keys()].map(i => {
 	return {
 	    id: Math.random(),
-	    src: require(`../img/paris/paris${i}.jpeg`)
+	    src: require(`../../img/paris/paris${i}.jpeg`)
 	}
     });
     return assignImgsToCols(nCols, imgs);
@@ -147,18 +147,15 @@ const images = (state = [], action) => {
     const { folder, type, cols, nCols } = action;
     switch (type) {
     case LOAD_ALL_PARIS_IMAGES:
-	console.log('Load image');
 	return [...state, _.assign({}, _.last(state), {
 	    [folder]: loadAllParisImage(nCols)
 	})];
     case SET_IMAGE_DIMENSIONS:
-	console.log('Set image dimensions');
 	const { dimensions } = action;
 	return [...state, _.assign({}, _.last(state), {
 	    [folder]: setImageDimensions(dimensions, cols) 
 	})];
     case ARRANGE_IMAGES:
-	console.log('Arrange images');
 	const preState = _.last(state);
 	const isArranged = _.assign({}, preState.isArranged, {
 	    [folder]: true
@@ -168,13 +165,10 @@ const images = (state = [], action) => {
 	    isArranged
 	})];
     case MOVE_IMAGE_TO_COL:
-	console.log('Move image to col');
 	return [...state, moveImageToCol(state, action)];
     case MOVE_IMAGE_AFTER_IMAGE:
-	console.log('Move image after image');
 	return [...state, moveImageAfterImage(state, action)];
     default:
-	console.log('Default state');
 	return state;
     }
 }

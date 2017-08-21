@@ -9,7 +9,7 @@ import {
     arrangeImages,
     moveImageToCol,
     moveImageAfterImage
-} from '../../actions';
+} from '../../actions/folder';
 import { folderName } from '../../constants';
 import './index.css';
 
@@ -61,7 +61,10 @@ class Folder extends Component {
 			id={img.id}
 			src={img.src}
 			draggable="true"
+			onDragOver={this.onDragHoverImg}
+			onDragLeave={this.onDragLeaveImg}
 			onDragStart={this.startDragImage}
+			onDragEnd={this.endDragImage}
 			onDrop={this.preventDefault}
 		    />
 		)
@@ -74,7 +77,6 @@ class Folder extends Component {
 	const curFolder = _.last(folder);
 	return (
 	    [...Array(this.nCols).keys()].map((col) => {
-		console.log('rendering col for folder', id);
 		return (
 		    <Col
 			md={12/this.nCols}
@@ -105,33 +107,44 @@ class Folder extends Component {
 	}
     }
 
+    onDragHoverImg(event) {
+	event.target.className += ' img-hover';
+    }
+
+    onDragLeaveImg(event) {
+	event.target.className = event.target.className.replace(/img-hover/g, '');
+    }
+
     startDragImage(event) {
+	event.target.className += ' img-moving';
 	const movingImgId = event.target.id;
 	const fromFolderId = event.target.parentNode.parentNode.firstChild.id;
 	const data = { movingImgId, fromFolderId };
 	event.dataTransfer.setData('text', JSON.stringify(data));
     }
 
+    /* draggingImage(event) {
+       console.log(event.target.offsetLeft);
+       console.log(`target location ${event.clientX} x and ${event.clientY} y`);
+     * }*/
+
+    endDragImage(event) {
+	event.target.className = event.target.className.replace(/img-moving/g, '');
+    }
+
     dropOnFolder(event) {
 	event.preventDefault();
-	console.log('Drop on x: ', event.clientX);
-	console.log('Drop on y: ', event.clientY);
-	console.log(event.target);
-	console.log(event.target.offsetLeft);
-	console.log(event.target.offsetTop);
 	const { id } = this.props;
 	const colWidth = document.getElementById(id).offsetWidth / this.nCols;
 	let toColIndex = 0;
 	[...Array(this.nCols + 1).keys()].some(i => {
 	    if (event.target.offsetLeft - colWidth * i < 0) {
-		console.log(i);
 		toColIndex = i - 1;
 		return true;
 	    }
 	    return false;
 	});
 
-	console.log('target col index: ', toColIndex);
 	if (event.target.parentNode.firstChild.className === 'folder-title') {
 	    const titleEle = event.target.parentNode.firstChild
 	    const toFolderId = titleEle.id;
@@ -151,7 +164,6 @@ class Folder extends Component {
     }
 
     render() {
-	console.log(this.props);
 	return (
 	    <div
 		className="folder"
