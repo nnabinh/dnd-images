@@ -1,5 +1,5 @@
 ## Screenshot
-![alt text]()
+![alt text](https://user-images.githubusercontent.com/10094591/29497516-116fff3c-8624-11e7-97aa-1e470df3bdca.png)
 
 ## Folder Structure
 
